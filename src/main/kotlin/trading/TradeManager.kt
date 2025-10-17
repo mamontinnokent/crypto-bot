@@ -3,7 +3,7 @@ package trading
 import feed.SeriesCtx
 import strategy.Signal
 import strategy.Direction
-import telegram.TelegramNotifier
+import notify.TelegramNotifier
 import openai.OpenAIClient
 import kotlin.math.max
 import kotlin.math.min
