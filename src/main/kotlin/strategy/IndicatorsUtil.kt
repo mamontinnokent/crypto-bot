@@ -5,8 +5,8 @@ import org.ta4j.core.indicators.*
 import org.ta4j.core.indicators.candles.*
 import org.ta4j.core.indicators.helpers.*
 import feed.SeriesCtx
-import org.ta4j.core.indicators.averages.EMAIndicator
-import org.ta4j.core.indicators.averages.SMAIndicator
+import org.ta4j.core.indicators.EMAIndicator
+import org.ta4j.core.indicators.SMAIndicator
 
 object IndicatorsUtil {
 

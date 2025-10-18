@@ -1,25 +1,30 @@
-# mexc-scalp-bot (fixed WS)
+# mexc-scalp-bot (Spot v3, PB WS + REST fallback)
 
-Рабочий адаптер под mexc-client 0.2.0 с публичным subscribe(pair, interval).
-JDK 17 подтягивается через Gradle toolchains.
+- Подписка на `spot@public.kline.v3.api.pb@SYMBOL@Min1` через Ktor WS
+- Пинг каждые 15 сек, авто‑переподключение на `wbs-api`/`wbs`
+- Если сервер шлёт только бинарные фреймы (protobuf) — включается REST fallback и каждую минуту берётся закрытая 1m свеча
+- TA4J 0.18: серии через `BaseBarSeriesBuilder`, `addBar(bar, false)`
 
 ## Быстрый старт
 ```bash
 export TELEGRAM_BOT_TOKEN=xxx
 export TELEGRAM_CHAT_ID=123456789
-export MEXC_PAIRS=BTCUSDT,ETHUSDT
-export RSI_BUY=30
-export RSI_SELL=70
-export USE_WS=true
+export PAIRS=BTCUSDT,ETHUSDT,SOLUSDT
+export USE_WS=true     # если не приходит WS, поставь false — работать будет на REST
 
+./gradlew run   # либо gradle run
+```
+
+Включить подробный WS‑лог фреймов:
+```bash
+export WS_DEBUG=true
 ./gradlew run
 ```
 
-```bash
-  export TELEGRAM_TOKEN="7881022054:AAFQ7xetVVcd-TBpzH6BCRTMqEC5kdVjrQg"
-  export TELEGRAM_CHAT_ID="1781660400"
-```
-
-## Телеграм
-
-- Бот реагирует на `/ping` и `/id`, но поллинг автоматически отключается, если Telegram вернёт `409 Conflict` (обычно это происходит, когда тот же токен используется ещё где-то). Убедитесь, что не запущены другие экземпляры бота или сервисы с тем же токеном, прежде чем повторно запускать процесс.
+## Файлы
+- `feed/MexcV3JsonWs.kt` — WS клиент с .pb топиками, рест‑фолбэк при бинарных фреймах
+- `feed/MexcRest.kt` — 1m klines
+- `ta/SeriesBuilder.kt` — сборка/агрегация серий, RSI + паттерны
+- `signal/SignalEngine.kt` — простая логика сигналов
+- `notify/TelegramNotifier.kt` — Telegram polling, /ping и /id
+- `app/Main.kt` — оркестрация

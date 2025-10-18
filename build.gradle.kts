@@ -16,7 +16,8 @@ dependencies {
     implementation("io.ktor:ktor-client-content-negotiation:2.3.11")
     implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.11")
 
-    implementation("org.ta4j:ta4j-core:0.18")
+    implementation("org.ta4j:ta4j-core:0.17")
+
     implementation("com.github.pengrad:java-telegram-bot-api:9.2.0")
 
     implementation("org.slf4j:slf4j-api:2.0.13")

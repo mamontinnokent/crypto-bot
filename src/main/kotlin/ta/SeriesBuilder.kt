@@ -8,6 +8,8 @@ import org.ta4j.core.indicators.candles.BullishEngulfingIndicator
 import org.ta4j.core.indicators.helpers.ClosePriceIndicator
 import java.time.Duration
 import java.time.Instant
+import java.time.ZoneOffset
+import java.time.ZonedDateTime
 
 data class MultiTfContext(
     val symbol: String,
@@ -29,12 +31,17 @@ object SeriesBuilder {
         val series = BaseBarSeriesBuilder().withName("${symbol}-1m").build()
         for (c in candles) {
             val endTime = Instant.ofEpochMilli(c.openTime + 60_000)
-            val bar = series.barBuilder()
-                .timePeriod(Duration.ofMinutes(1))
-                .endTime(endTime)
-                .openPrice(c.open).highPrice(c.high).lowPrice(c.low).closePrice(c.close)
-                .volume(c.volume).build()
-            series.addBar(bar, false)
+            val zdt = ZonedDateTime.ofInstant(endTime, ZoneOffset.UTC)
+            val bar = BaseBar(
+                Duration.ofMinutes(1),
+                zdt,
+                c.open,
+                c.high,
+                c.low,
+                c.close,
+                c.volume
+            )
+            series.addBar(bar)
         }
         series.maximumBarCount = 600
         return series
@@ -63,11 +70,17 @@ object SeriesBuilder {
                 vol += b.volume.doubleValue()
             }
             val endTime = slice.last().endTime
-            val bar = out.barBuilder()
-                .timePeriod(period)
-                .endTime(endTime)
-                .openPrice(open).highPrice(high).lowPrice(low).closePrice(close).volume(vol).build()
-            out.addBar(bar, false)
+            val zdt = endTime.withZoneSameInstant(ZoneOffset.UTC)
+            val bar = BaseBar(
+                period,
+                zdt,
+                open,
+                high,
+                low,
+                close,
+                vol
+            )
+            out.addBar(bar)
             i = j
         }
         out.maximumBarCount = 600

@@ -1,5 +1,6 @@
 package signal
 
+import org.slf4j.LoggerFactory
 import ta.SeriesBuilder
 import ta.MultiTfContext
 
@@ -17,11 +18,15 @@ class SignalEngine(
     private val buyRsi: Double = 30.0,
     private val sellRsi: Double = 70.0
 ) {
+
+    private val log = LoggerFactory.getLogger("SignalEngine")
+
     fun check(ctx: MultiTfContext): Signal? {
         val i1 = SeriesBuilder.calcIndicators(ctx.series1m)
         val i5 = SeriesBuilder.calcIndicators(ctx.series5m)
         val iH = SeriesBuilder.calcIndicators(ctx.series1h)
 
+        log.info("${ctx.symbol}")
         if (!i1.rsi.isNaN() && i1.rsi < buyRsi && i1.bullish && i1.momentumPct3 >= 0) {
             val reason = "RSI1m=${"%.1f".format(i1.rsi)} < $buyRsi, Bull Engulf, mom3=${"%.2f".format(i1.momentumPct3)}%"
             return Signal(ctx.symbol, Direction.LONG, reason, i1.rsi, i5.rsi, iH.rsi)
